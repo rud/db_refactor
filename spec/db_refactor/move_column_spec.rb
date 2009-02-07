@@ -7,6 +7,14 @@ describe DbRefactor::MoveColumn do
 
   class Invocator < ActiveRecord::Migration
     include DbRefactor::MoveColumn
+
+    def self.up
+      move_column 'favorite_color', :fancy_users, :target_profiles
+    end
+
+    def self.down
+      move_column 'favorite_color', :target_profiles, :fancy_users
+    end
   end
 
   describe "include hook" do
@@ -53,7 +61,7 @@ describe DbRefactor::MoveColumn do
       end
 
       def do_invoke
-        Invocator.move_column 'favorite_color', :fancy_users, :target_profiles
+        Invocator.up
       end
 
       it "should have favorite_color on user" do
