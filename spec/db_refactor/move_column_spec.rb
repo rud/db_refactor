@@ -6,7 +6,7 @@ describe DbRefactor::MoveColumn do
   load_rails_environment
 
   class Invocator < ActiveRecord::Migration
-    include DbRefactor::MoveColumn # notice this ends up on ActiveRecord::ConnectionAdapters::AbstractAdapter, see init.rb
+    include DbRefactor::MoveColumn # notice this ends up on ActiveRecord::Migration, see init.rb
 
     def self.up
       move_column 'favorite_color', :fancy_users, :target_profiles

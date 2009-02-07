@@ -1,3 +1,3 @@
 config.after_initialize do
-  ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, DbRefactor::MoveColumn)
+  ActiveRecord::Migration.send(:extend, DbRefactor::MoveColumn)
 end
