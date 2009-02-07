@@ -1,0 +1,34 @@
+= DbRefactor
+<b>Version 0.6.0 (February 7, 2009)</b>
+
+Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
+Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
+License:: MIT license.  See MIT-LICENSE file for more details.
+
+
+This Rails plugin makes it trivial to move a column from one table to another while retaining the values.
+
+Usage is simple: include the DbRefactor::MoveColumn module in your migration class, and use the +move_column+ method. The column is automatically created in the destination table with the same name and type.
+
+Note: this works great for small tables, but if you have a lot of data, you should look into updating the plugin,
+as it reads all objects from the source-table when starting.
+
+= Example
+
+  class MoveFirstNameFromUserToProfile < ActiveRecord::Migration
+    include DbRefactor::MoveColumn
+
+    def self.up
+      move_column :first_name, :users, :profiles
+    end
+
+    def self.down
+      move_column :first_name, :profiles, :users
+    end
+  end
+
+= Running specs
+
+Install this plugin in a Rails project, and run the following in the plugin directory:
+  spec spec
+

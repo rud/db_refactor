@@ -1,0 +1,12 @@
+ActiveRecord::Schema.define(:version => 0) do
+  create_table :fancy_users, :force => true do |t|
+    t.column :name, :string
+    t.column :favorite_color, :string
+    t.column :favorite_number, :decimal, :precision => 15, :scale => 2
+  end
+
+  create_table :target_profiles, :force => true do |t|
+    t.column :name, :string
+    t.column :fancy_user_id, :integer
+  end
+end
