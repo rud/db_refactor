@@ -8,7 +8,6 @@ def load_rails_environment
   dir = File.dirname(__FILE__)
   ENV["RAILS_ENV"] ||= "test"
   require "#{dir}/../../../../config/environment"
-  require "#{dir}/../init.rb"
 end
 
 def setup_rails_database

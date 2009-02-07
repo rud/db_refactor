@@ -13,15 +13,13 @@ module DbRefactor
       from_type = from_table.to_s.classify.constantize
       add_target_column(from_type, to_table, column)
 
-      say_with_time "Copying values.." do
-        from_type.transaction do
-          from_type.all.each do |from_instance|
-            value = from_instance[column]
-            referenced = load_or_create_referenced(from_instance, to_table)
+      from_type.transaction do
+        from_type.all.each do |from_instance|
+          value = from_instance[column]
+          referenced = load_or_create_referenced(from_instance, to_table)
 
-            referenced[column] = value
-            referenced.save!
-          end
+          referenced[column] = value
+          referenced.save!
         end
       end
 
@@ -58,5 +56,4 @@ module DbRefactor
       referenced
     end
   end
-
 end

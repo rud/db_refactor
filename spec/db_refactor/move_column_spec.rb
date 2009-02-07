@@ -6,7 +6,7 @@ describe DbRefactor::MoveColumn do
   load_rails_environment
 
   class Invocator < ActiveRecord::Migration
-    include DbRefactor::MoveColumn
+    include DbRefactor::MoveColumn # notice this ends up on ActiveRecord::ConnectionAdapters::AbstractAdapter, see init.rb
 
     def self.up
       move_column 'favorite_color', :fancy_users, :target_profiles
@@ -19,7 +19,7 @@ describe DbRefactor::MoveColumn do
 
   describe "include hook" do
     it "should respond to method from MoveColumn" do
-      Invocator.should respond_to(:move_column)
+      Invocator.new.should respond_to(:move_column)
     end
   end
 
