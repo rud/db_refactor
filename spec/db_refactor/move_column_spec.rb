@@ -117,6 +117,32 @@ describe DbRefactor::MoveColumn do
         do_invoke
         no_profile.target_profile.favorite_color.should == 'red'
       end
+
+      describe "paginated find" do
+        before :each do
+          FancyUser.delete_all; TargetProfile.delete_all
+          1.upto(60) do |i|
+            FancyUser.create(:name => "fancy #{i}", :favorite_color => "super intelligent shade of blue ##{i + 42}")
+          end
+        end
+
+        it "should page through all source-objects 50 at a time" do
+          FancyUser.expects(:all).returns([])
+          FancyUser.expects(:all).with(has_entry(:limit => 50)).times(2).returns([FancyUser.create]).times(2)
+          do_invoke
+        end
+
+        it "should order by id" do
+          FancyUser.expects(:all).returns([])
+          FancyUser.expects(:all).with(has_entry(:order => 'id')).times(2).returns([FancyUser.create]).times(2)
+          do_invoke
+        end
+
+        it "should create a profile for each" do
+          do_invoke
+          TargetProfile.count.should == 60
+        end
+      end
     end
   end
 end

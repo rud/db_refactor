@@ -14,7 +14,7 @@ module DbRefactor
       add_target_column(from_type, to_table, column)
 
       from_type.transaction do
-        from_type.all.each do |from_instance|
+        each_row(from_type) do |from_instance|
           value = from_instance[column]
           referenced = load_or_create_referenced(from_instance, to_table)
 
@@ -54,6 +54,16 @@ module DbRefactor
         referenced = from_instance.send("create_#{reference_name}")
       end
       referenced
+    end
+
+    # Yields all records from +from_type+, one at a time.  Loads +limit+ records
+    # into memory at a time
+    def each_row from_type, limit = 50
+      rows = from_type.all(:order => 'id', :limit => limit)
+      while rows.any?
+        rows.each { |record| yield record }
+        rows = from_type.all(:order => 'id', :limit => limit, :conditions => ["id > ?", rows.last.id])
+      end
     end
   end
 end
