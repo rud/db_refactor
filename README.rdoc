@@ -1,5 +1,5 @@
 = DbRefactor
-<b>Version 0.6.2 (February 8, 2009)</b>
+<b>Version 0.6.3 (February 18, 2009)</b>
 
 Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
 Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
@@ -31,4 +31,7 @@ instead of reading everything in one go.
 
 Install this plugin in a Rails project, and run the following in the plugin directory:
   spec spec
+  
+Dependencies for running specs are: rspec and mocha.
 
+Tested with Rails 2.1.2
