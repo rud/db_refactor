@@ -4,7 +4,7 @@
 Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
 Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
 License:: MIT license.  See MIT-LICENSE file for more details.
-
+Source:: http://github.com/rud/db_refactor/tree/master
 
 This Rails plugin makes it trivial to move a column from one table to another while retaining the values. 
 The column is automatically created in the destination table with the same name and type, and missing
