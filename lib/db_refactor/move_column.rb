@@ -14,7 +14,7 @@ module DbRefactor
       add_target_column(from_type, to_table, column)
 
       from_type.transaction do
-        each_row(from_type) do |from_instance|
+        each_row(from_type, to_table) do |from_instance|
           value = from_instance[column]
           referenced = load_or_create_referenced(from_instance, to_table)
 
@@ -48,21 +48,27 @@ module DbRefactor
 
     # Load the reference to the assocated table - will attempt to create it if it is missing
     def load_or_create_referenced from_instance, to_table
-      reference_name = to_table.to_s.singularize
-      referenced = from_instance.send(reference_name)
+      referenced = from_instance.send(reference_name(to_table))
       if referenced.blank?
-        referenced = from_instance.send("create_#{reference_name}")
+        referenced = from_instance.send("build_#{reference_name(to_table)}")
       end
       referenced
     end
 
+    # Generate the name of the reference. A +to_table+ of :preferences becomes 'preference'
+    def reference_name to_table
+      to_table.to_s.singularize
+    end
+
     # Yields all records from +from_type+, one at a time.  Loads +limit+ records
-    # into memory at a time
-    def each_row from_type, limit = 50
-      rows = from_type.all(:order => 'id', :limit => limit)
+    # into memory at a time. To avoid the N+1 loading problem, the referenced objects are included when loading
+    def each_row from_type, to_table, limit = 50
+      rows = from_type.all(:order => 'id', :limit => limit,
+        :include => reference_name(to_table))
       while rows.any?
         rows.each { |record| yield record }
-        rows = from_type.all(:order => 'id', :limit => limit, :conditions => ["id > ?", rows.last.id])
+        rows = from_type.all(:order => 'id', :limit => limit,
+          :include => reference_name(to_table), :conditions => ["id > ?", rows.last.id])
       end
     end
   end
