@@ -18,8 +18,9 @@ describe DbRefactor::MoveColumn do
   end
 
   describe "include hook" do
-    it "should respond to method from MoveColumn" do
+    it "should respond to method from module" do
       Invocator.new.should respond_to(:move_column)
+      Invocator.new.should respond_to(:each_row)
     end
   end
 
@@ -132,16 +133,44 @@ describe DbRefactor::MoveColumn do
           do_invoke
         end
 
-        it "should order by id" do
-          FancyUser.expects(:all).returns([])
-          FancyUser.expects(:all).with(has_entry(:order => 'id')).times(2).returns([FancyUser.create]).times(2)
-          do_invoke
-        end
-
         it "should create a profile for each" do
           do_invoke
           TargetProfile.count.should == 60
         end
+      end
+    end
+    describe ".each_row()" do
+      before :each do
+        FancyUser.delete_all; TargetProfile.delete_all
+        @users = []
+        1.upto(60) do |i|
+          @users << FancyUser.create(:name => "fancy #{i}", :favorite_color => "super intelligent shade of blue ##{i + 42}")
+        end
+      end
+
+      def do_invoke
+        Invocator.each_row(FancyUser) do |row|
+          # skip
+        end
+      end
+
+      it "should page through all source-objects 50 at a time" do
+        FancyUser.expects(:all).returns([])
+        FancyUser.expects(:all).with(has_entry(:limit => 50)).times(2).returns([FancyUser.create]).times(2)
+        do_invoke
+      end
+
+      it "should order by id" do
+        FancyUser.expects(:all).returns([])
+        FancyUser.expects(:all).with(has_entry(:order => 'id')).times(2).returns([FancyUser.create]).times(2)
+        do_invoke
+      end
+
+      it "should yield each row" do
+        Invocator.each_row(FancyUser) do |row|
+          row.should == @users.shift
+        end
+        @users.should be_blank
       end
     end
   end

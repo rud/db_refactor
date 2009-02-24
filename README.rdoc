@@ -1,5 +1,5 @@
 = DbRefactor
-<b>Version 0.6.3 (February 18, 2009)</b>
+<b>Version 0.6.4 (February 24, 2009)</b>
 
 Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
 Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
@@ -13,7 +13,12 @@ referenced objects are also automatically created.
 Usage is simple: install the plugin as usual, and you can the +move_column+ method in all migrations. 
 
 Note: this should work great for both small and large tables, as it pages through the source-table,
-instead of reading everything in one go.
+instead of reading everything in one go.  This pagination functionality can also be used on its own inside
+migrations with:
+
+  each_row(User) do |row|
+    # do thing with row; remember to save
+  end
 
 = Example
 

@@ -2,6 +2,9 @@ module DbRefactor
 
   module MoveColumn
 
+    # How many rows to fetch at a time when iterating an entire table
+    PAGING_LIMIT = 50
+
     # Migrate a single +column+ from +from_table+ to +to_table+, retaining the value.
     # If the referenced target object is not found, it will be created (using
     # the .create_'referenced' method).
@@ -14,7 +17,7 @@ module DbRefactor
       add_target_column(from_type, to_table, column)
 
       from_type.transaction do
-        each_row(from_type, to_table) do |from_instance|
+        each_row(from_type, reference_name(to_table)) do |from_instance|
           value = from_instance[column]
           referenced = load_or_create_referenced(from_instance, to_table)
 
@@ -60,16 +63,23 @@ module DbRefactor
       to_table.to_s.singularize
     end
 
-    # Yields all records from +from_type+, one at a time.  Loads +limit+ records
-    # into memory at a time. To avoid the N+1 loading problem, the referenced objects are included when loading
-    def each_row from_type, to_table, limit = 50
-      rows = from_type.all(:order => 'id', :limit => limit,
-        :include => reference_name(to_table))
+    # Yields all records from +from_type+, one at a time.  Loads +interval+ records
+    # into memory at a time.
+    # The N+1 loading problem can be avoided by using +include_reference+
+    def each_row from_type, include_reference = nil, interval = PAGING_LIMIT
+      fetch_options = {
+        :order => 'id',
+        :limit => interval
+      }
+      fetch_options[:include] = include_reference unless include_reference.blank?
+
+      rows = from_type.all(fetch_options)
       while rows.any?
         rows.each { |record| yield record }
-        rows = from_type.all(:order => 'id', :limit => limit,
-          :include => reference_name(to_table), :conditions => ["id > ?", rows.last.id])
+        fetch_options[:conditions] = ["id > ?", rows.last.id]
+        rows = from_type.all(fetch_options)
       end
     end
+    public :each_row
   end
 end
