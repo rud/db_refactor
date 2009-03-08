@@ -5,28 +5,36 @@ module DbRefactor
     # How many rows to fetch at a time when iterating an entire table
     PAGING_LIMIT = 50
 
-    # Migrate a single +column+ from +from_table+ to +to_table+, retaining the value.
+    # Migrate one ore more +columns+ from +from_table+ to +to_table+, retaining the values.
     # If the referenced target object is not found, it will be created (using
     # the .create_'referenced' method).
     # Especially useful for refactoring :has_one associations
     #
     # Notice: automatically calls reset_column_information on the ActiveRecord types,
     # to make sure new objects or later migrations use the new table structure.
-    def move_column column, from_table, to_table
+    def move_column columns, from_table, to_table
       from_type = from_table.to_s.classify.constantize
-      add_target_column(from_type, to_table, column)
+      [columns].flatten.each do |column|
+        add_target_column(from_type, to_table, column)
+      end
+      to_table.to_s.classify.constantize.reset_column_information
 
       from_type.transaction do
         each_row(from_type, reference_name(to_table)) do |from_instance|
-          value = from_instance[column]
-          referenced = load_or_create_referenced(from_instance, to_table)
-
-          referenced[column] = value
+          referenced = nil
+          [columns].flatten.each do |column|
+            value = from_instance[column]
+            referenced = load_or_create_referenced(from_instance, to_table)
+            referenced[column] = value
+          end
           referenced.save!
         end
       end
 
-      remove_source_column(from_table, column)
+      [columns].flatten.each do |column|
+        remove_source_column(from_table, column)
+      end
+      from_table.to_s.classify.constantize.reset_column_information
     end
 
     private
@@ -40,13 +48,11 @@ module DbRefactor
       end
 
       add_column to_table, column, moving_column.type, attributes_hash
-      to_table.to_s.classify.constantize.reset_column_information
     end
 
     # Remove +column+ from the +from_table+
     def remove_source_column from_table, column
       remove_column from_table, column
-      from_table.to_s.classify.constantize.reset_column_information
     end
 
     # Load the reference to the assocated table - will attempt to create it if it is missing

@@ -6,8 +6,8 @@ Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
 License:: MIT license.  See MIT-LICENSE file for more details.
 Source:: http://github.com/rud/db_refactor/tree/master
 
-This Rails plugin makes it trivial to move a column from one table to another while retaining the values. 
-The column is automatically created in the destination table with the same name and type, and missing
+This Rails plugin makes it trivial to move one or more columns from one table to another while retaining the values.
+The columns are automatically created in the destination table with the same name and type, and missing
 referenced objects are also automatically created.
 
 Usage is simple: install the plugin as usual, and you can the +move_column+ method in all migrations. 
@@ -20,7 +20,7 @@ migrations with:
     # do thing with row; remember to save
   end
 
-= Example
+= Examples
 
   class MoveFirstNameFromUserToProfile < ActiveRecord::Migration
     def self.up
@@ -31,6 +31,19 @@ migrations with:
       move_column :first_name, :profiles, :users
     end
   end
+
+Moving multiple columns in a single step:
+
+  class MovePaperclipColumnsToProfile < ActiveRecord::Migration
+    def self.up
+      move_column [:picture_file_name, :picture_file_size, :picture_content_type], :users, :profiles
+    end
+
+    def self.down
+      move_column [:picture_file_name, :picture_file_size, :picture_content_type], :profiles, :users
+    end
+  end
+
 
 = Running specs
 

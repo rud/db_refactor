@@ -139,6 +139,55 @@ describe DbRefactor::MoveColumn do
         end
       end
     end
+
+    describe "moving multiple columns at a time" do
+      class MultiColumnInvocator < ActiveRecord::Migration
+        include DbRefactor::MoveColumn # notice this ends up on ActiveRecord::Migration, see init.rb
+
+        def self.up
+          move_column [:favorite_color, :favorite_number], :fancy_users, :target_profiles
+        end
+
+        def self.down
+          move_column [:favorite_color, :favorite_number], :target_profiles, :fancy_users
+        end
+      end
+
+      before :each do
+        @user = FancyUser.create(:name => 'Peter Griffin',
+          :favorite_color => 'blue',
+          :favorite_number => 42
+        )
+      end
+
+      def do_invoke
+        MultiColumnInvocator.up
+      end
+
+      it "moves favorite color" do
+        do_invoke
+        @user = FancyUser.find(@user)  # reload after column information has changed
+        @user.should_not respond_to(:favorite_color)
+        @user.target_profile.should respond_to(:favorite_color)
+      end
+
+      it "moves favorite color" do
+        do_invoke
+        @user = FancyUser.find(@user)
+        @user.should_not respond_to(:favorite_number)
+        @user.target_profile.should respond_to(:favorite_number)
+      end
+
+      it "should reset source column information once" do
+        FancyUser.expects(:reset_column_information).once
+        do_invoke
+      end
+
+      it "should reset target column information once" do
+        TargetProfile.expects(:reset_column_information).once
+        do_invoke
+      end
+    end
     describe ".each_row()" do
       before :each do
         FancyUser.delete_all; TargetProfile.delete_all
