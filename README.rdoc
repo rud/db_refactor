@@ -1,5 +1,5 @@
 = DbRefactor
-<b>Version 0.6.4 (February 24, 2009)</b>
+<b>Version 0.6.5 (March 8, 2009)</b>
 
 Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
 Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
