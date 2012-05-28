@@ -1,10 +1,16 @@
 = DbRefactor
 <b>Version 0.6.5 (March 8, 2009)</b>
 
-Author:: Laust Rud Jacobsen (laust.rud@gmail.com), Jørgen Orehøj Erichsen
+Author:: Laust Rud Jacobsen (laust@object.io), Jørgen Orehøj Erichsen
 Copyright:: Copyright (c) 2009 Laust Rud Jacobsen, Jørgen Orehøj Erichsen
 License:: MIT license.  See MIT-LICENSE file for more details.
 Source:: http://github.com/rud/db_refactor/tree/master
+
+== Status: Unmaintained
+
+Modern alternatives include {data_migration}[https://github.com/svenfuchs/data_migrations] and {migratrix}[https://github.com/dbrady/migratrix/]
+
+== Overview
 
 This Rails plugin makes it trivial to move one or more columns from one table to another while retaining the values.
 The columns are automatically created in the destination table with the same name and type, and missing
